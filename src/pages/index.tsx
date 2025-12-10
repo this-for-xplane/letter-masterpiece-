@@ -1,9 +1,6 @@
 import { useState, useRef } from 'react';
-import LetterCanvas from '@/components/LetterCanvas';
-import { loadPaymentWidget, ANONYMOUS } from '@tosspayments/payment-widget-sdk';
+import LetterCanvas from '../components/LetterCanvas';
 import { nanoid } from 'nanoid';
-
-const TOSS_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || 'test_ck_D5GePWvyJnrO0z5z6KJ9KWQbdOa1';
 
 export default function Home() {
   const [bg, setBg] = useState('/templates/paper1.jpg');
@@ -11,76 +8,96 @@ export default function Home() {
   const canvasRef = useRef<any>(null);
 
   const templates = [
-    { url: '/templates/paper1.jpg', name: '기본 종이', price: 0 },
-    { url: '/templates/vintage.jpg', name: '빈티지', price: 800 },
-    { url: '/templates/sakura.jpg', name: '벚꽃', price: 800 },
-    { url: '/templates/galaxy.jpg', name: '은하수', price: 1200 },
-    { url: '/templates/christmas.jpg', name: '크리스마스', price: 1000 },
+    { url: '/templates/paper1.jpg', name: '클래식', price: 0 },
+    { url: '/templates/vintage.jpg', name: '빈티지', price: 900 },
+    { url: '/templates/sakura.jpg', name: '벚꽃', price: 900 },
+    { url: '/templates/galaxy.jpg', name: '은하수', price: 1500 },
+    { url: '/templates/christmas.jpg', name: '윈터', price: 1200 },
   ];
 
-  const price = (templates.find(t => t.url === bg)?.price || 0) + (vr ? 1500 : 0);
+  const price = (templates.find(t => t.url === bg)?.price || 0) + (vr ? 1900 : 0);
 
   const handlePay = async () => {
-    const widget = await loadPaymentWidget(TOSS_KEY, ANONYMOUS);
-    const image = canvasRef.current?.getImage();
+    try {
+      const { loadPaymentWidget, ANONYMOUS } = await import('@tosspayments/payment-widget-sdk');
+      const paymentWidget = await loadPaymentWidget('test_gck_docs_Ovk5rk1EwkEbP0d5Dz1g', ANONYMOUS);
 
-    widget.requestPayment({
-      orderId: nanoid(),
-      orderName: '감성 편지' + (vr ? ' + VR' : ''),
-      amount: price,
-      successUrl: `${location.origin}/success?img=${encodeURIComponent(image || '')}&vr=${vr}`,
-      failUrl: `${location.origin}/fail`,
-    });
+      setTimeout(async () => {
+        try {
+          await paymentWidget.renderPaymentMethods('#payment-method', { value: price });
+          await paymentWidget.renderAgreement('#agreement');
+          await paymentWidget.requestPayment({
+            orderId: 'order_' + Date.now(),
+            orderName: '감성 편지',
+            amount: price,
+            customerName: '테스트',
+            successUrl: `${window.location.origin}/success`,
+            failUrl: `${window.location.origin}/fail`,
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }, 600);
+    } catch (err) {
+      console.error(err);
+      alert('결제 초기화 실패');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-5xl font-bold text-center mb-10 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          감성 편지 마스터피스
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
+      <div className="w-full max-w-6xl mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight">편지</h1>
+          <p className="text-white/80 text-lg md:text-xl mt-3 font-medium">손글씨로 마음을 전하세요</p>
+        </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <LetterCanvas background={bg} ref={canvasRef} />
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
+          <div className="lg:col-span-2 order-2 lg:order-1">
+            <div className="glass p-6 md:p-8 rounded-3xl shadow-2xl mx-auto max-w-3xl">
+              <LetterCanvas background={bg} ref={canvasRef} />
+            </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-white/90 backdrop-blur rounded-3xl p-6 shadow-xl">
-              <h2 className="text-2xl font-bold mb-4">편지지 선택</h2>
-              <div className="grid grid-cols-2 gap-4">
+          <div className="order-1 lg:order-2 space-y-6">
+            <div className="glass p-6 md:p-8 rounded-3xl">
+              <h3 className="text-white text-xl md:text-2xl font-bold mb-6 text-center">편지지</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-4">
                 {templates.map(t => (
-                  <button
-                    key={t.url}
-                    onClick={() => setBg(t.url)}
-                    className={`rounded-xl overflow-hidden ring-4 ring-transparent transition ${bg === t.url ? 'ring-pink-500' : ''}`}
-                  >
-                    <img src={t.url} alt="" className="w-full h-40 object-cover" />
-                    <div className="p-2 text-center font-bold">
-                      {t.name} {t.price > 0 && `(+${t.price}원)`}
+                  <button key={t.url} onClick={() => setBg(t.url)} className={`rounded-2xl overflow-hidden transition-all duration-300 ${bg === t.url ? 'ring-4 ring-white/70 scale-105 shadow-2xl' : 'shadow-lg'}`}>
+                    <img src={t.url} alt={t.name} className="w-full aspect-square object-cover" />
+                    <div className="bg-black/60 p-3">
+                      <p className="text-white font-bold text-sm md:text-base">{t.name}</p>
+                      <p className="text-white/80 text-xs md:text-sm">{t.price.toLocaleString()}원</p>
                     </div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="bg-white/90 backdrop-blur rounded-3xl p-6 shadow-xl">
-              <label className="flex items-center gap-3 text-xl">
-                <input type="checkbox" checked={vr} onChange={e => setVr(e.target.checked)} className="w-6 h-6" />
-                <span>가상현실(VR)로 보내기 (+1,500원)</span>
+            <div className="glass p-6 md:p-8 rounded-3xl">
+              <label className="flex items-center justify-between cursor-pointer">
+                <div>
+                  <p className="text-white text-lg md:text-xl font-bold">VR로 보내기</p>
+                  <p className="text-white/70 text-sm md:text-base">가상현실 속 편지</p>
+                </div>
+                <div className="relative">
+                  <input type="checkbox" checked={vr} onChange={e => setVr(e.target.checked)} className="sr-only" />
+                  <div className={`w-14 h-8 rounded-full transition ${vr ? 'bg-white' : 'bg-white/30'}`}>
+                    <div className={`absolute w-6 h-6 bg-purple-600 rounded-full transition-transform top-1 ${vr ? 'translate-x-8' : 'translate-x-1'}`} />
+                  </div>
+                </div>
               </label>
             </div>
 
-            <div className="bg-white/90 backdrop-blur rounded-3xl p-8 shadow-xl text-center">
-              <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-6">
-                결제 금액: {price.toLocaleString()}원
-              </div>
-              <button
-                onClick={handlePay}
-                className="w-full py-6 text-2xl font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl hover:scale-105 transition shadow-2xl"
-              >
-                {price === 0 ? '무료로 완성하기' : `${price.toLocaleString()}원 결제하고 보내기`}
+            <div className="glass p-8 md:p-10 rounded-3xl text-center">
+              <p className="text-white/80 text-base md:text-lg mb-2">총 결제금액</p>
+              <p className="text-white text-4xl md:text-5xl font-black mb-8">₩{price.toLocaleString()}</p>
+              <button onClick={handlePay} className="w-full py-6 text-xl md:text-2xl font-bold text-gray-900 bg-white rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 active:scale-95 mb-6">
+                결제하기
               </button>
+              <div id="payment-method" className="mt-8" style={{ minHeight: '400px' }} />
+              <div id="agreement" className="mt-4" style={{ minHeight: '200px' }} />
             </div>
           </div>
         </div>

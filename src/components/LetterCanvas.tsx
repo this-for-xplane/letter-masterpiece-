@@ -2,76 +2,76 @@ import { forwardRef, useImperativeHandle, useRef, useEffect } from 'react';
 import { fabric } from 'fabric';
 
 const LetterCanvas = forwardRef(({ background }: { background: string }, ref) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fabricCanvas = useRef<fabric.Canvas | null>(null);
+  const canvasEl = useRef<HTMLCanvasElement>(null);
+  const canvas = useRef<fabric.Canvas | null>(null);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasEl.current) return;
 
-    const canvas = new fabric.Canvas(canvasRef.current, {
+    const c = new fabric.Canvas(canvasEl.current, {
       width: 800,
       height: 1100,
       backgroundColor: '#fffaf0',
     });
 
-    fabricCanvas.current = canvas;
+    canvas.current = c;
+    c.isDrawingMode = true;
+    c.freeDrawingBrush.width = 4;
+    c.freeDrawingBrush.color = '#2d3436';
 
-    // 기본 펜 설정
-    canvas.freeDrawingBrush.width = 3;
-    canvas.freeDrawingBrush.color = '#000000';
-
-    // 배경 설정
-    if (background) {
-      fabric.Image.fromURL(background, (img) => {
+    // 배경 로드
+    fabric.Image.fromURL(background, (img) => {
+      if (img) {
         img.scaleToWidth(800);
-        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-      });
-    }
+        c.setBackgroundImage(img, c.renderAll.bind(c));
+      }
+    });
 
-    return () => canvas.dispose();
+    return () => c.dispose();
   }, []);
 
-  // 배경 변경 시
   useEffect(() => {
-    if (fabricCanvas.current && background) {
+    if (canvas.current && background) {
       fabric.Image.fromURL(background, (img) => {
-        img.scaleToWidth(800);
-        fabricCanvas.current?.setBackgroundImage(img, fabricCanvas.current.renderAll.bind(fabricCanvas.current));
+        if (img) {
+          img.scaleToWidth(800);
+          canvas.current?.setBackgroundImage(img, canvas.current.renderAll.bind(canvas.current));
+        }
       });
     }
   }, [background]);
 
   useImperativeHandle(ref, () => ({
-    addSticker: (url: string) => {
+    addSticker(url: string) {
       fabric.Image.fromURL(url, (img) => {
-        img.set({ left: 200, top: 200 });
-        img.scale(0.3);
-        fabricCanvas.current?.add(img);
+        img.set({ left: 300, top: 300 });
+        img.scale(0.4);
+        canvas.current?.add(img);
+        canvas.current?.renderAll();
       });
     },
-    exportImage: () => {
-      return fabricCanvas.current?.toDataURL('image/png');
+    getImage() {
+      return canvas.current?.toDataURL({ format: 'png', multiplier: 2 });
     },
-    clear: () => fabricCanvas.current?.clear(),
   }));
 
-  const toggleDrawing = () => {
-    if (fabricCanvas.current) {
-      fabricCanvas.current.isDrawingMode = !fabricCanvas.current.isDrawingMode;
-    }
-  };
-
   return (
-    <div className="bg-white rounded-2xl shadow-2xl p-6">
-      <div className="flex gap-4 mb-4">
-        <button onClick={toggleDrawing} className="px-6 py-3 bg-black text-white rounded-lg font-bold">
+    <div className="bg-white rounded-3xl shadow-2xl p-8 border-8 border-amber-100">
+      <div className="flex gap-4 mb-6">
+        <button
+          onClick={() => canvas.current && (canvas.current.isDrawingMode = !canvas.current.isDrawingMode)}
+          className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg hover:scale-105 transition"
+        >
           펜으로 쓰기
         </button>
-        <button onClick={() => fabricCanvas.current?.clear()} className="px-6 py-3 bg-red-500 text-white rounded-lg">
+        <button
+          onClick={() => canvas.current?.clear()}
+          className="px-8 py-4 bg-red-500 text-white rounded-xl font-bold shadow-lg hover:scale-105 transition"
+        >
           모두 지우기
         </button>
       </div>
-      <canvas ref={canvasRef} className="border-8 border-gray-300 rounded-xl shadow-xl" />
+      <canvas ref={canvasEl} className="rounded-2xl shadow-inner" />
     </div>
   );
 });

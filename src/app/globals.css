@@ -2,28 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Toss + iOS 감성 폰트 */
+/* 깔끔한 iOS/Toss 스타일 폰트 */
 @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=Pretendard:wght@400;500;600;700;800&display=swap');
 
 * {
-  font-family: 'Pretendard', 'SF Pro Display', -apple-system, sans-serif;
+  font-family: 'SF Pro Display', 'Pretendard', -apple-system, system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(145deg, #f0f4f8 0%, #e2e8f0 100%);
   min-height: 100vh;
+  color: #111827;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
 }
 
-/* 부드러운 그림자 + 글래스모피즘 */
+/* 글래스모피즘 카드 */
 .glass {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.glass:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
 }
 
-/* Toss 스타일 버튼 */
+/* 버튼 - Toss / iOS 모던 감성 */
 .btn-toss {
-  @apply bg-white text-gray-900 font-bold py-5 px-10 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95;
+  @apply bg-white text-gray-900 font-semibold py-3 px-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300;
+  letter-spacing: 0.5px;
+}
+.btn-toss:hover {
+  @apply bg-gray-50;
+}
+.btn-toss:active {
+  @apply scale-95;
+}
+
+/* 입력창 등 요소 */
+.input-field {
+  @apply w-full py-3 px-4 rounded-xl border border-gray-300 bg-white/80 placeholder-gray-400 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all duration-200;
+}
+
+/* 부드러운 헤더 */
+.header {
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #111827;
+  text-align: center;
 }

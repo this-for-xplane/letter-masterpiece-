@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import LetterCanvas from '../components/LetterCanvas';
-import { nanoid } from 'nanoid';
 
 export default function Home() {
   const [bg, setBg] = useState('/templates/paper1.jpg');
@@ -19,28 +18,30 @@ export default function Home() {
 
   const handlePay = async () => {
     try {
-      const { loadPaymentWidget, ANONYMOUS } = await import('@tosspayments/payment-widget-sdk');
-      const paymentWidget = await loadPaymentWidget('test_gck_docs_Ovk5rk1EwkEbP0d5Dz1g', ANONYMOUS);
+      // Canvas 이미지 가져오기
+      const imageData = canvasRef.current?.getImage();
 
-      setTimeout(async () => {
-        try {
-          await paymentWidget.renderPaymentMethods('#payment-method', { value: price });
-          await paymentWidget.renderAgreement('#agreement');
-          await paymentWidget.requestPayment({
-            orderId: 'order_' + Date.now(),
-            orderName: '감성 편지',
-            amount: price,
-            customerName: '테스트',
-            successUrl: `${window.location.origin}/success`,
-            failUrl: `${window.location.origin}/fail`,
-          });
-        } catch (e) {
-          console.error(e);
-        }
-      }, 600);
+      // 서버로 Checkout 세션 요청
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: price, // Stripe는 원 단위 그대로
+          description: '감성 편지',
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('Checkout API failed:', text);
+        return;
+      }
+
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
     } catch (err) {
       console.error(err);
-      alert('결제 초기화 실패');
+      alert('결제 요청 실패');
     }
   };
 
@@ -96,8 +97,6 @@ export default function Home() {
               <button onClick={handlePay} className="w-full py-6 text-xl md:text-2xl font-bold text-gray-900 bg-white rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 active:scale-95 mb-6">
                 결제하기
               </button>
-              <div id="payment-method" className="mt-8" style={{ minHeight: '400px' }} />
-              <div id="agreement" className="mt-4" style={{ minHeight: '200px' }} />
             </div>
           </div>
         </div>

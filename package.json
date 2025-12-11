@@ -9,22 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tosspayments/payment-widget-sdk": "^0.11.1",
+    "cloudinary": "^2.8.0",
+    "fabric": "^5.3.1",
+    "nanoid": "^5.0.7",
     "next": "14.2.5",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "fabric": "^5.3.1",
-    "@tosspayments/payment-widget-sdk": "^0.11.1",
-    "uuid": "^9.0.1",
-    "nanoid": "^5.0.7"
+    "stripe": "^20.0.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
+    "@types/fabric": "^5.3.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@types/fabric": "^5.3.7",
-    "tailwindcss": "^3.4.1",
     "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38"
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.5.4"
   }
 }

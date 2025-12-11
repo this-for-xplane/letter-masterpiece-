@@ -2,143 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 2025 최신 프리미엄 폰트 스택 */
-@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700;800;900&family=Pretendard:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;900&display=swap');
+/* Toss + SF Pro + Pretendard (Toss 폰트 느낌 최적화) */
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;900&family=Pretendard:wght@400;500;600;700;800;900&display=swap');
 
 @layer base {
   * {
-   margin: 0;
-   padding: 0;
-   box-sizing: border-box;
- }
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
- html {
-   -webkit-text-size-adjust: 100%;
-   text-rendering: optimizeLegibility;
-   -webkit-font-smoothing: antialiased;
-   -moz-osx-font-smoothing: grayscale;
- }
+  html {
+    scroll-behavior: smooth;
+  }
 
- body {
-   font-family: 'SF Pro Display', 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
-   min-height: 100dvh;
-   color: #0f172a;
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-   padding: 2rem;
-   overflow-x: hidden;
- }
+  body {
+    font-family: 'SF Pro Display', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f0f7ff 0%, #d9eaff 100%);
+    min-height: 100vh;
+    color: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    overflow-x: hidden;
+  }
 }
 
-/* 글래스모피즘 2025 버전 – 더 얇고 투명하며 입체감 극대화 */
+/* Toss-like 둥근 입체 카드 (Neumorphism + Glass) */
 @layer components {
- .glass {
-   background: rgba(255, 255, 255, 0.45);
-   backdrop-filter: blur(20px) saturate(180%);
-   -webkit-backdrop-filter: blur(20px) saturate(180%);
-   border-radius: 24px;
-   border: 1px solid rgba(255, 255, 255, 0.4);
-   box-shadow:
-     0 8px 32px rgba(15, 23, 42, 0.06),
-     0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-   padding: 2.5rem;
-   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-   position: relative;
-   overflow: hidden;
- }
+  .toss-card {
+    @apply relative overflow-hidden rounded-3xl p-8 max-w-md w-full;
+    background: #ffffff;
+    border: 1px solid rgba(0, 100, 255, 0.1);
+    box-shadow:
+      8px 8px 16px rgba(0, 0, 0, 0.05),
+      -8px -8px 16px rgba(255, 255, 255, 0.8);
+    transition: all 0.4s ease-out;
+  }
 
- .glass::before {
-   content: '';
-   position: absolute;
-   inset: 0;
-   border-radius: inherit;
-   padding: 1px;
-   background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.05));
-   -webkit-mask: linear-gradient(#fff 0 0) content-box, #fff 0 0);
-   -webkit-mask-composite: xor;
-   mask-composite: exclude;
-   pointer-events: none;
- }
-
- .glass:hover {
-   transform: translateY(-8px) scale(1.01);
-   box-shadow:
-     0 20px 40px rgba(15, 23, 42, 0.1),
-     0 0 0 1px rgba(255, 255, 255, 0.2) inset;
- }
+  .toss-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      12px 12px 24px rgba(0, 0, 0, 0.08),
+      -12px -12px 24px rgba(255, 255, 255, 0.9);
+  }
 }
 
-/* Toss + Apple Intelligence 스타일 버튼 (2025) */
-.btn-premium {
- @apply relative overflow-hidden font-semibold text-base px-8 py-3.5 rounded-2xl transition-all duration-400 ease-out;
- background: linear-gradient(145deg, #ffffff, #f1f5f9);
- color: #1e293b;
- box-shadow:
-   0 4px 12px rgba(0, 0, 0, 0.08),
-   0 0 0 1px rgba(0, 0, 0, 0.05) inset;
+/* Toss 둥근 입체 버튼 (볼록 + 둥글둥글) */
+.btn-toss {
+  @apply w-full font-bold text-lg py-4 rounded-full text-white transition-all duration-300;
+  background: #0064ff; /* Toss 블루 */
+  box-shadow:
+    4px 4px 8px rgba(0, 100, 255, 0.2),
+    -4px -4px 8px rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.2px;
 }
 
-.btn-premium::before {
- content: '';
- position: absolute;
- inset: 0;
- border-radius: inherit;
- background: linear-gradient(145deg, rgba(255,255,255,0.6), rgba(255,255,255,0));
- opacity: 0;
- transition: opacity 0.4s;
+.btn-toss:hover {
+  background: #0052d9;
+  transform: translateY(-2px);
+  box-shadow:
+    6px 6px 12px rgba(0, 100, 255, 0.25),
+    -6px -6px 12px rgba(255, 255, 255, 0.6);
 }
 
-.btn-premium:hover {
- @apply shadow-xl scale-105;
- transform;
+.btn-toss:active {
+  transform: scale(0.98);
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.btn-premium:hover::before {
- opacity: 1;
+/* 둥근 입체 입력창 (함몰 느낌) */
+.input-toss {
+  @apply w-full px-6 py-4 rounded-full text-base border-none;
+  background: #f8fbff;
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.05),
+              inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+  placeholder: #94a3b8;
+  transition: all 0.3s ease;
 }
 
-.btn-premium:active {
- @apply scale-95;
- transform: translateY(1px);
+.input-toss:focus {
+  @apply outline-none;
+  box-shadow: inset 4px 4px 8px rgba(0, 100, 255, 0.1),
+              inset -4px -4px 8px rgba(255, 255, 255, 0.9),
+              0 0 0 2px rgba(0, 100, 255, 0.3);
 }
 
-/* 입력창 – iOS 19 + Toss 감성 완벽 재현 */
-.input-modern {
- @apply w-full px-5 py-4 rounded-2xl text-base transition-all duration-300;
- background: rgba(255, 255, 255, 0.7);
- border: 1px solid rgba(148, 163, 184, 0.3);
- backdrop-filter: blur(10px);
- color: #1e293b;
- placeholder-color: #94a3b8;
+/* Toss 볼드 헤더 (둥근 느낌 텍스트) */
+.header-toss {
+  @apply text-3xl font-extrabold text-center mb-6 tracking-tight;
+  color: #0064ff;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
 }
 
-.input-modern:focus {
- @apply outline-none ring-4 ring-indigo-500/20 border-indigo-400 shadow-lg;
- background: rgba(255, 255, 255, 0.95);
- transform: scale(1.02);
-}
-
-/* 헤더 – 더 크고 입체감 있게 */
-.header-premium {
- @apply font-black text-4xl md:text-5xl tracking-tight;
- background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
- -webkit-background-clip: text;
- -webkit-text-fill-color: transparent;
- background-clip: text;
- text-align: center;
- margin-bottom: 1.5rem;
- letter-spacing: -1px;
-}
-
-/* 미세한 애니메이션 추가 */
+/* 부드러운 플로트 애니메이션 */
 @keyframes float {
- 0%, 100% { transform: translateY(0px); }
- 50% { transform: translateY(-10px); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
-.glass {
- animation: float 12s ease-in-out infinite;
+.float {
+  animation: float 5s ease-in-out infinite;
 }

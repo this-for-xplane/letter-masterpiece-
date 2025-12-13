@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react';
-import LetterCanvas from '../components/LetterCanvas';
+import LetterCanvas, { LetterCanvasHandle } from '../components/LetterCanvas';
 import TemplatePicker from '../components/TemplatePicker';
+import jsPDF from 'jspdf';
 
 export default function Home() {
   const [bg, setBg] = useState('/templates/paper1.jpg');
   const [vr, setVr] = useState(false);
-  const canvasRef = useRef<any>(null);
+  const [paid, setPaid] = useState(false);
+  const canvasRef = useRef<LetterCanvasHandle>(null);
 
   const templates = [
     { url: '/templates/paper1.jpg', name: '클래식', price: 0 },
@@ -17,37 +19,63 @@ export default function Home() {
 
   const price = (templates.find(t => t.url === bg)?.price || 0) + (vr ? 1900 : 0);
 
+  // 결제 처리
   const handlePay = async () => {
     try {
-      const imageData = canvasRef.current?.getImage();
-
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: price,
           description: '감성 편지',
-          //image: imageData,
         }),
       });
-
-      if (!res.ok) {
-        const text = await res.text();
-        console.error('Checkout API failed:', text);
-        return;
-      }
+      if (!res.ok) throw new Error(await res.text());
 
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
+      if (data.url) {
+        // Stripe 결제 페이지 이동
+        window.location.href = data.url;
+      }
     } catch (err) {
       console.error(err);
       alert('결제 요청 실패');
     }
   };
 
+  // PDF 내보내기
   const handleExport = () => {
-    // PDF/이미지 export 로직 넣을 자리
-    alert('내보내기 기능 준비중...');
+    if (!paid) return alert('결제 후 사용 가능합니다');
+
+    const imageData = canvasRef.current?.getImage();
+    if (!imageData) return alert('캔버스 이미지 없음');
+
+    const doc = new jsPDF({ orientation: 'portrait' });
+    doc.addImage(imageData, 'PNG', 10, 10, 180, 240);
+    doc.save('letter.pdf');
+  };
+
+  // 이메일 보내기
+  const handleSendEmail = async () => {
+    if (!paid) return alert('결제 후 사용 가능합니다');
+
+    const message = prompt('보낼 메시지를 입력하세요') || '';
+    const imageData = canvasRef.current?.getImage();
+    if (!imageData) return alert('캔버스 이미지 없음');
+
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, image: imageData }),
+      });
+      if (!res.ok) throw new Error('메일 전송 실패');
+
+      alert('메일 전송 완료!');
+    } catch (err) {
+      console.error(err);
+      alert('메일 전송 실패');
+    }
   };
 
   return (
@@ -61,7 +89,7 @@ export default function Home() {
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-10">
           <div className="lg:col-span-2 order-2 lg:order-1">
             <div className="glass p-6 md:p-8 rounded-3xl shadow-2xl mx-auto max-w-3xl">
-              <LetterCanvas background={bg} ref={canvasRef} />
+              <LetterCanvas background={bg} ref={canvasRef} paid={paid} />
             </div>
           </div>
 
@@ -90,7 +118,8 @@ export default function Home() {
               <p className="text-white/80 text-base md:text-lg mb-2">총 결제금액</p>
               <p className="text-white text-4xl md:text-5xl font-black mb-8">₩{price.toLocaleString()}</p>
               <button onClick={handlePay} className="btn-toss mb-3">결제하기</button>
-              <button onClick={handleExport} className="w-full py-3 rounded-xl bg-white/90 font-semibold">내보내기 (PDF)</button>
+              <button onClick={handleExport} className="w-full py-3 rounded-xl bg-white/90 font-semibold mb-3">내보내기 (PDF)</button>
+              <button onClick={handleSendEmail} className="w-full py-3 rounded-xl bg-purple-600 text-white font-semibold">이메일 보내기</button>
             </div>
           </div>
         </div>

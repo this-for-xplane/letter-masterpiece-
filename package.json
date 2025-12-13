@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@tosspayments/payment-widget-sdk": "^0.11.1",
+    "axios": "^1.13.2",
     "cloudinary": "^2.8.0",
     "fabric": "^5.3.1",
+    "jspdf": "^3.0.4",
     "nanoid": "^5.0.7",
     "next": "14.2.5",
     "react": "18.3.1",

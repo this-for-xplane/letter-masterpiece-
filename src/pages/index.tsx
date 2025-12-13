@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import LetterCanvas from '../components/LetterCanvas';
+import TemplatePicker from '../components/TemplatePicker';
 
 export default function Home() {
   const [bg, setBg] = useState('/templates/paper1.jpg');
@@ -18,16 +19,15 @@ export default function Home() {
 
   const handlePay = async () => {
     try {
-      // Canvas 이미지 가져오기
       const imageData = canvasRef.current?.getImage();
 
-      // 서버로 Checkout 세션 요청
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: price, // Stripe는 원 단위 그대로
+          amount: price,
           description: '감성 편지',
+          //image: imageData,
         }),
       });
 
@@ -43,6 +43,11 @@ export default function Home() {
       console.error(err);
       alert('결제 요청 실패');
     }
+  };
+
+  const handleExport = () => {
+    // PDF/이미지 export 로직 넣을 자리
+    alert('내보내기 기능 준비중...');
   };
 
   return (
@@ -63,17 +68,7 @@ export default function Home() {
           <div className="order-1 lg:order-2 space-y-6">
             <div className="glass p-6 md:p-8 rounded-3xl">
               <h3 className="text-white text-xl md:text-2xl font-bold mb-6 text-center">편지지</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-4">
-                {templates.map(t => (
-                  <button key={t.url} onClick={() => setBg(t.url)} className={`rounded-2xl overflow-hidden transition-all duration-300 ${bg === t.url ? 'ring-4 ring-white/70 scale-105 shadow-2xl' : 'shadow-lg'}`}>
-                    <img src={t.url} alt={t.name} className="w-full aspect-square object-cover" />
-                    <div className="bg-black/60 p-3">
-                      <p className="text-white font-bold text-sm md:text-base">{t.name}</p>
-                      <p className="text-white/80 text-xs md:text-sm">{t.price.toLocaleString()}원</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <TemplatePicker templates={templates} selected={bg} onSelect={setBg} />
             </div>
 
             <div className="glass p-6 md:p-8 rounded-3xl">
@@ -94,9 +89,8 @@ export default function Home() {
             <div className="glass p-8 md:p-10 rounded-3xl text-center">
               <p className="text-white/80 text-base md:text-lg mb-2">총 결제금액</p>
               <p className="text-white text-4xl md:text-5xl font-black mb-8">₩{price.toLocaleString()}</p>
-              <button onClick={handlePay} className="w-full py-6 text-xl md:text-2xl font-bold text-gray-900 bg-white rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 active:scale-95 mb-6">
-                결제하기
-              </button>
+              <button onClick={handlePay} className="btn-toss mb-3">결제하기</button>
+              <button onClick={handleExport} className="w-full py-3 rounded-xl bg-white/90 font-semibold">내보내기 (PDF)</button>
             </div>
           </div>
         </div>

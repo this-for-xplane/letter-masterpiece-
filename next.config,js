@@ -7,5 +7,26 @@ const nextConfig = {
   experimental: {
     appDir: false,
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: `
+              default-src 'self';
+              script-src 'self' https://js.stripe.com blob:;
+              connect-src 'self' https://api.stripe.com;
+              frame-src https://js.stripe.com https://hooks.stripe.com;
+              style-src 'self' 'unsafe-inline';
+              img-src 'self' data: https:;
+            `.replace(/\s{2,}/g, ' ').trim(),
+          },
+        ],
+      },
+    ];
+  },
 };
+
 module.exports = nextConfig;
